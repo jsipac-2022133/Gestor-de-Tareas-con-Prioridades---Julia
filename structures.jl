@@ -122,3 +122,46 @@ function find_max_priority(node::Union{TaskNode, Nothing})
     end
     return find_max_priority(node.right)
 end
+
+function complete_task(list::CompletedList, task::TaskNode)
+    node = ListNode(task, nothing, nothing)
+    if list.tail === nothing
+        list.head = node
+        list.tail = node
+    else
+        node.prev = list.tail
+        list.tail.next = node
+        list.tail = node
+    end
+    list.size += 1
+end
+
+function remove_completed(list::CompletedList, id::Int)
+    current = list.head
+    while current !== nothing
+        if current.task.id == id
+            if current.prev !== nothing
+                current.prev.next = current.next
+            else
+                list.head = current.next
+            end
+            if current.next !== nothing
+                current.next.prev = current.prev
+            else
+                list.tail = current.prev
+            end
+            list.size -= 1
+            return current.task
+        end
+        current = current.next
+    end
+    return nothing
+end
+
+function print_completed(list::CompletedList)
+    current = list.head
+    while current !== nothing
+        println("  [id=", current.task.id, "] ", current.task.title)
+        current = current.next
+    end
+end
